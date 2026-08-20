@@ -10,6 +10,9 @@ node_modules/
 
 # ── 🔑 ของลับ ห้ามหลุดเด็ดขาด ──
 secrets.js
+
+# ค่าตั้งค่า Firebase ของเครื่องผู้สอน (คัดลอกจาก js/firebase-config.example.js)
+js/firebase-config.js
 .env
 .env.local
 .env.*

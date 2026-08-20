@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seed ข้อมูลตัวอย่าง — FixIt</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">🔧 FixIt</a>
+  </header>
+
+  <main>
+    <h1>🌱 ใส่ข้อมูลตัวอย่าง (seed) ลง Firestore</h1>
+    <div class="card">
+      <p style="margin-bottom:0.8rem">
+        กดปุ่มด้านล่างเพื่อใส่ข้อมูลตัวอย่างตาม <code>fixit-spec.md</code> หัวข้อ 7 ลง Firestore:
+        ผู้ใช้ 3 คน · หมวดหมู่ 3 แบบ · ใบแจ้งซ่อม 5 ใบ · ความคืบหน้า 3 รายการ (โฟลเดอร์ย่อย <code>comments</code>)
+      </p>
+      <p style="margin-bottom:0.8rem;font-size:0.9rem;color:#6b7280">
+        กดซ้ำได้ ข้อมูลจะถูกเขียนทับด้วยชุดเดิม (ใช้ชื่อไฟล์ตายตัว u001 c001 t001 …) ·
+        ถ้ากฎกำหนดให้ล็อกอินก่อนเขียน (สัปดาห์ที่ 7 ขึ้นไป) ให้ล็อกอินที่ login.html ก่อน
+      </p>
+      <button id="seed-btn" class="btn btn-primary">ใส่ข้อมูลตัวอย่าง</button>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0">ผลการทำงาน</h2>
+      <pre id="log" style="white-space:pre-wrap;font-size:0.9rem">ยังไม่ได้เริ่ม</pre>
+    </div>
+  </main>
+
+  <script type="module" src="js/seed.js"></script>
+</body>
+</html>
