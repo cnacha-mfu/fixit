@@ -1,0 +1,42 @@
+# ─────────────────────────────────────────────────────────────
+# .gitignore ของ FixIt — "รายชื่อสิ่งที่ห้ามส่งขึ้น GitHub"
+# (อิงเทมเพลตของหลักสูตร RAISE 2)
+# ─────────────────────────────────────────────────────────────
+
+
+# ── ชิ้นส่วนที่ npm ติดตั้งให้ (ใหญ่มาก และสร้างใหม่ได้เสมอ) ──
+node_modules/
+
+
+# ── 🔑 ของลับ ห้ามหลุดเด็ดขาด ──
+secrets.js
+.env
+.env.local
+.env.*
+
+# ไฟล์คีย์ระดับผู้ดูแลของ Firebase
+*serviceAccount*.json
+*firebase-adminsdk*.json
+.firebaserc.local
+
+
+# ── ไฟล์ที่ Firebase สร้างเอง ──
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+
+# ── ไฟล์ที่เครื่องเราสร้างเอง ──
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+.vscode/
+.idea/
+
+
+# ── ผลการทดสอบ (สัปดาห์ที่ 9) ──
+test-results/
+playwright-report/
+blob-report/

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>รายการใบแจ้งซ่อม — FixIt</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">🔧 FixIt</a>
+    <nav>
+      <a href="tickets.html">รายการแจ้งซ่อม</a>
+      <a href="new-ticket.html">แจ้งซ่อมใหม่</a>
+      <a href="categories.html">หมวดหมู่</a>
+      <a href="dashboard.html">แดชบอร์ด</a>
+    </nav>
+    <div class="user-box" id="user-box"></div>
+  </header>
+
+  <main>
+    <div id="notice-area"></div>
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+      <h1 style="margin:0">📋 รายการใบแจ้งซ่อม</h1>
+      <a class="btn btn-primary" href="new-ticket.html">+ แจ้งซ่อมใหม่</a>
+      <span id="filter-info"></span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>หัวข้อ</th>
+            <th>หมวดหมู่</th>
+            <th>สถานะ</th>
+            <th>ผู้แจ้ง</th>
+            <th>วันที่แจ้ง</th>
+          </tr>
+        </thead>
+        <tbody id="ticket-rows"></tbody>
+      </table>
+    </div>
+    <p id="empty-message" class="hidden" style="margin-top:1rem">ยังไม่มีใบแจ้งซ่อมในระบบ</p>
+  </main>
+
+  <script type="module" src="js/tickets.js"></script>
+</body>
+</html>

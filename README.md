@@ -1,0 +1,40 @@
+# 🎬 FixIt — ระบบแจ้งซ่อมออนไลน์ (ระบบสาธิตของผู้สอน)
+
+ระบบตัวอย่างที่ **ผู้สอนใช้สาธิตสดในคาบบรรยาย** ของ ADT-RAISE Batch 2 · Module 2 (สัปดาห์ที่ 6–9)
+สเปกฉบับเต็มอยู่ในไฟล์ [`fixit-spec.md`](fixit-spec.md) — โครงสร้างข้อมูล · 5 หน้าจอ · user stories · สถานะ · ข้อมูลตัวอย่าง
+
+> ⚠️ ระบบนี้ **ไม่ใช่สิ่งที่ผู้เรียนต้องสร้างตาม** — ผู้เรียนทำโครงงานของกลุ่มตัวเอง
+> โดยมี LeaveEasy เป็นเฉลยตัวอย่างในใบงาน (ดู `leaveeasy-spec.md` ในคลังสื่อ)
+
+## เทคโนโลยี
+
+HTML + CSS + JavaScript ธรรมดา (ไม่มี framework · ไม่มี build step) · Firebase SDK ผ่าน CDN (v10 modular)
+· Firestore · Authentication · Security Rules · Hosting · OpenRouter (สัปดาห์ที่ 8) · Playwright (สัปดาห์ที่ 9)
+
+เปิดดูในเครื่อง: `npm run dev` แล้วเข้า `http://localhost:3000`
+
+## 🏷️ แท็กทั้ง 5 — สถานะของระบบในแต่ละสัปดาห์
+
+| แท็ก | ใช้ในคาบ | สถานะของระบบ ณ แท็กนั้น |
+|---|---|---|
+| `week6-start` | ต้นสัปดาห์ที่ 6 | เว็บ prototype 5 หน้า + หน้าแรก · ข้อมูลปลอมใน `js/data.js` (ปิดเบราว์เซอร์แล้วหาย) · **ยังไม่มีฐานข้อมูล** — สภาพ "prototype จาก Module 1" |
+| `week6-end` | จบสัปดาห์ที่ 6 | + ต่อ Firestore แบบ**อ่านอย่างเดียว** (ตัว R) · หน้า `seed.html` ใส่ข้อมูลตัวอย่าง · ไม่มี config จะ fallback ไปข้อมูลปลอมพร้อมแถบเตือนเหลือง |
+| `week7-end` | จบสัปดาห์ที่ 7 (= จุดเริ่มสาธิตสัปดาห์ที่ 8 ที่สคริปต์เรียกว่า `week8-start`) | + CLAUDE.md · CRUD ครบ 4 ตัว · ล็อกอินอีเมล/รหัสผ่าน (`login.html`) · กฎขั้นต่ำ "ต้องล็อกอินก่อน" · ตั้งค่า Hosting |
+| `week8-end` | จบสัปดาห์ที่ 8 (= `week9-start` ในสคริปต์สาธิต) | + Security Rules รายห้องครบ 5 ข้อ (รวมโฟลเดอร์ย่อย `comments`) · ปุ่ม AI 2 ระดับผ่าน OpenRouter · Reviewer sub-agent · `backlog-sprint2.md` |
+| `week9-end` | จบสัปดาห์ที่ 9 · `main` ชี้ที่นี่ | + ชุดทดสอบ Playwright ต้นแบบใน `tests/` · Tester sub-agent |
+
+## วิธีสลับไปยังสถานะของสัปดาห์ที่ต้องการ
+
+```
+git checkout week6-start     # สลับไปสภาพต้นสัปดาห์ที่ 6
+git checkout week7-end       # สลับไปสภาพจบสัปดาห์ที่ 7
+git checkout main            # กลับมาเวอร์ชันล่าสุด (week9-end)
+```
+
+> 💡 ไฟล์ที่ถูก `.gitignore` กันไว้ (เช่น `js/firebase-config.js` · `js/config.js`) **ไม่หายตอนสลับแท็ก**
+> จึงตั้งค่าครั้งเดียวแล้วสลับแท็กไปมาได้เลย
+
+## เริ่มใช้ครั้งแรก
+
+อ่าน [`SETUP.md`](SETUP.md) — ขั้นตอนที่ผู้สอนต้องทำเองประมาณ 10 นาที
+(สร้างโปรเจกต์ Firebase · วาง config · seed ข้อมูล · deploy · คีย์ OpenRouter)

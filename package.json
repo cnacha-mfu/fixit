@@ -1,0 +1,9 @@
+{
+  "name": "fixit",
+  "private": true,
+  "type": "module",
+  "description": "FixIt — ระบบแจ้งซ่อมออนไลน์ (ระบบสาธิตของผู้สอน ADT-RAISE Batch 2 · Module 2)",
+  "scripts": {
+    "dev": "npx -y serve -l 3000 ."
+  }
+}

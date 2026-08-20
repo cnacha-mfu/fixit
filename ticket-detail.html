@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>รายละเอียดใบแจ้งซ่อม — FixIt</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">🔧 FixIt</a>
+    <nav>
+      <a href="tickets.html">รายการแจ้งซ่อม</a>
+      <a href="new-ticket.html">แจ้งซ่อมใหม่</a>
+      <a href="categories.html">หมวดหมู่</a>
+      <a href="dashboard.html">แดชบอร์ด</a>
+    </nav>
+    <div class="user-box" id="user-box"></div>
+  </header>
+
+  <main>
+    <p><a href="tickets.html">← กลับไปหน้ารายการ</a></p>
+    <div id="notice-area"></div>
+
+    <div id="ticket-card" class="card hidden">
+      <h1 id="t-title"></h1>
+      <p style="margin-bottom:0.8rem"><span id="t-status"></span></p>
+      <table style="min-width:0">
+        <tbody>
+          <tr><th style="width:10rem">รายละเอียด</th><td id="t-detail"></td></tr>
+          <tr><th>หมวดหมู่</th><td id="t-category"></td></tr>
+          <tr><th>สถานที่</th><td id="t-location"></td></tr>
+          <tr><th>ผู้แจ้ง</th><td id="t-reporter"></td></tr>
+          <tr><th>ช่างที่รับผิดชอบ</th><td id="t-assignee"></td></tr>
+          <tr><th>วันที่แจ้ง</th><td id="t-created"></td></tr>
+        </tbody>
+      </table>
+
+      <div style="margin-top:1rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+        <button id="status-btn" class="btn btn-primary"></button>
+        <button id="delete-btn" class="btn btn-danger">ลบใบแจ้งซ่อม</button>
+      </div>
+      <p id="action-hint" style="font-size:0.85rem;color:#6b7280;margin-top:0.4rem"></p>
+    </div>
+
+    <div id="comments-card" class="card hidden">
+      <h2>💬 ความคืบหน้าของงาน</h2>
+      <div id="comment-list"></div>
+      <p id="no-comments" class="hidden" style="color:#6b7280">ยังไม่มีความคืบหน้า</p>
+
+      <form id="comment-form" style="margin-top:0.8rem">
+        <div class="field">
+          <label for="comment-text">เขียนความคืบหน้าใหม่</label>
+          <textarea id="comment-text" style="min-height:70px"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-small">ส่งความคืบหน้า</button>
+      </form>
+    </div>
+  </main>
+
+  <script type="module" src="js/ticket-detail.js"></script>
+</body>
+</html>

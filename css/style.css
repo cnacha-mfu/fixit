@@ -1,0 +1,166 @@
+/* ═══ FixIt — หน้าตาร่วมของทุกหน้า ═══ */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "Leelawadee UI", "Sarabun", "Segoe UI", sans-serif;
+  background: #f4f6f8;
+  color: #1f2937;
+  line-height: 1.6;
+}
+
+/* ── แถบเมนูบน ── */
+.topbar {
+  background: #1e3a5f;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  flex-wrap: wrap;
+}
+.topbar .brand {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #fff;
+  text-decoration: none;
+}
+.topbar nav { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+.topbar nav a {
+  color: #cbd5e1;
+  text-decoration: none;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+.topbar nav a:hover { background: #2d4d78; color: #fff; }
+.topbar nav a.active { background: #2d4d78; color: #fff; }
+.user-box {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+main {
+  max-width: 900px;
+  margin: 1.5rem auto;
+  padding: 0 1rem;
+}
+
+h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+h2 { font-size: 1.15rem; margin: 1.25rem 0 0.5rem; }
+
+/* ── ปุ่ม ── */
+.btn {
+  display: inline-block;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  background: #e5e7eb;
+  color: #1f2937;
+}
+.btn:hover { filter: brightness(0.95); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary { background: #1d4ed8; color: #fff; }
+.btn-danger  { background: #dc2626; color: #fff; }
+.btn-small   { padding: 0.25rem 0.7rem; font-size: 0.85rem; }
+
+/* ── ตาราง ── */
+.table-wrap { overflow-x: auto; background: #fff; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+table { width: 100%; border-collapse: collapse; min-width: 620px; }
+th, td { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid #e5e7eb; }
+th { background: #f9fafb; font-size: 0.9rem; color: #4b5563; }
+tbody tr.clickable { cursor: pointer; }
+tbody tr.clickable:hover { background: #eff6ff; }
+
+/* ── ป้ายสถานะ (4 ค่าตาม spec) ── */
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.s-new    { background: #e5e7eb; color: #374151; }  /* แจ้งใหม่ = เทา */
+.s-ack    { background: #dbeafe; color: #1d4ed8; }  /* รับเรื่องแล้ว = ฟ้า */
+.s-fixing { background: #fef3c7; color: #92400e; }  /* กำลังซ่อม = เหลือง */
+.s-done   { background: #d1fae5; color: #065f46; }  /* เสร็จสิ้น = เขียว */
+
+/* ── ฟอร์ม ── */
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.field { margin-bottom: 0.9rem; }
+.field label { display: block; font-size: 0.9rem; color: #4b5563; margin-bottom: 0.25rem; }
+.field input, .field select, .field textarea {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #fff;
+}
+.field textarea { min-height: 100px; resize: vertical; }
+
+/* ── กล่องข้อความแจ้งผล ── */
+.notice { padding: 0.7rem 1rem; border-radius: 8px; margin-bottom: 1rem; }
+.notice-warn  { background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; }
+.notice-error { background: #fee2e2; border: 1px solid #dc2626; color: #991b1b; }
+.notice-ok    { background: #d1fae5; border: 1px solid #10b981; color: #065f46; }
+.notice-ai    { background: #ede9fe; border: 1px solid #7c3aed; color: #5b21b6; }
+.hidden { display: none; }
+
+/* ── แดชบอร์ด ── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1.25rem;
+}
+.stat-box {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.stat-box .num { font-size: 2rem; font-weight: bold; }
+.stat-box:hover { outline: 2px solid #93c5fd; }
+
+/* ── หน้าแรก ── */
+.home-links { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.8rem; }
+.home-links a {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  padding: 1.1rem;
+  text-decoration: none;
+  color: #1f2937;
+}
+.home-links a:hover { outline: 2px solid #93c5fd; }
+.home-links .title { font-weight: bold; margin-bottom: 0.2rem; }
+.home-links .desc { font-size: 0.9rem; color: #6b7280; }
+
+/* ── รายการความคืบหน้า ── */
+.comment { border-top: 1px solid #e5e7eb; padding: 0.6rem 0; }
+.comment .meta { font-size: 0.85rem; color: #6b7280; }
+
+/* ── มือถือ ── */
+@media (max-width: 600px) {
+  .topbar { font-size: 0.9rem; }
+  main { margin-top: 1rem; }
+}

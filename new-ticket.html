@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>แจ้งซ่อมใหม่ — FixIt</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">🔧 FixIt</a>
+    <nav>
+      <a href="tickets.html">รายการแจ้งซ่อม</a>
+      <a href="new-ticket.html">แจ้งซ่อมใหม่</a>
+      <a href="categories.html">หมวดหมู่</a>
+      <a href="dashboard.html">แดชบอร์ด</a>
+    </nav>
+    <div class="user-box" id="user-box"></div>
+  </header>
+
+  <main>
+    <h1>📝 แจ้งซ่อมใหม่</h1>
+    <div id="notice-area"></div>
+
+    <form id="ticket-form" class="card" novalidate>
+      <div class="field">
+        <label for="title">หัวข้อ *</label>
+        <input id="title" name="title" type="text" placeholder="เช่น แอร์ห้องประชุมไม่เย็น">
+      </div>
+      <div class="field">
+        <label for="detail">รายละเอียดอาการ *</label>
+        <textarea id="detail" name="detail" placeholder="เล่าอาการที่เจอ เสียตั้งแต่เมื่อไร"></textarea>
+      </div>
+      <div class="field">
+        <label for="category">หมวดหมู่ *</label>
+        <select id="category" name="category">
+          <option value="">— เลือกหมวดหมู่ —</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="location">สถานที่ *</label>
+        <input id="location" name="location" type="text" placeholder="เช่น ห้องประชุมใหญ่ ชั้น 3">
+      </div>
+
+      <button type="submit" id="save-btn" class="btn btn-primary">บันทึก</button>
+      <a href="tickets.html" class="btn">ยกเลิก</a>
+    </form>
+  </main>
+
+  <script type="module" src="js/new-ticket.js"></script>
+</body>
+</html>

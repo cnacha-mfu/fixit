@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FixIt — ระบบแจ้งซ่อมออนไลน์</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">🔧 FixIt</a>
+    <nav>
+      <a href="tickets.html">รายการแจ้งซ่อม</a>
+      <a href="new-ticket.html">แจ้งซ่อมใหม่</a>
+      <a href="categories.html">หมวดหมู่</a>
+      <a href="dashboard.html">แดชบอร์ด</a>
+    </nav>
+    <div class="user-box" id="user-box"></div>
+  </header>
+
+  <main>
+    <h1>🔧 FixIt — ระบบแจ้งซ่อมออนไลน์ของสำนักงาน</h1>
+    <p style="margin-bottom:1rem">
+      พนักงานแจ้งของเสียผ่านหน้าเว็บ · ผู้ดูแลมอบหมายช่าง · ช่างอัปเดตความคืบหน้า · ปิดงานเมื่อเสร็จ
+    </p>
+
+    <div class="home-links">
+      <a href="tickets.html">
+        <div class="title">📋 รายการใบแจ้งซ่อม</div>
+        <div class="desc">ดูใบแจ้งซ่อมทั้งหมด พร้อมสถานะเป็นป้ายสี</div>
+      </a>
+      <a href="new-ticket.html">
+        <div class="title">📝 แจ้งซ่อมใหม่</div>
+        <div class="desc">กรอกฟอร์มแจ้งของเสียเข้าระบบ</div>
+      </a>
+      <a href="categories.html">
+        <div class="title">🗂️ จัดการหมวดหมู่</div>
+        <div class="desc">เพิ่ม แก้ ลบ หมวดหมู่ปัญหา (สำหรับผู้ดูแลระบบ)</div>
+      </a>
+      <a href="dashboard.html">
+        <div class="title">📊 แดชบอร์ดสรุป</div>
+        <div class="desc">ตัวเลขสรุปตามสถานะ และรายการล่าสุด</div>
+      </a>
+    </div>
+  </main>
+
+  <script type="module">
+    import { markActiveNav } from "./js/ui.js";
+    markActiveNav();
+  </script>
+</body>
+</html>
