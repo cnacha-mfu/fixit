@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ทดสอบเรียก AI — FixIt</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html">🔧 FixIt</a>
+  </header>
+
+  <main style="max-width:600px">
+    <h1>🤖 หน้าทดสอบเรียก AI (OpenRouter)</h1>
+    <p style="font-size:0.9rem;color:#6b7280;margin-bottom:1rem">
+      กฎเหล็กของการต่อบริการภายนอก: ทำให้เรียกสำเร็จหนึ่งครั้งก่อน แล้วค่อยทำฟีเจอร์จริง —
+      เห็นคำตอบแปลว่า คีย์ถูก · ชื่อโมเดลถูก · อินเทอร์เน็ตถึง
+    </p>
+    <div id="notice-area"></div>
+
+    <div class="card">
+      <div class="field">
+        <label for="message">ข้อความที่จะส่งให้ AI</label>
+        <textarea id="message" style="min-height:70px">สวัสดี ตอบกลับมาหนึ่งประโยค</textarea>
+      </div>
+      <button id="send-btn" class="btn btn-primary">ส่ง</button>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0">คำตอบ</h2>
+      <p id="answer" style="white-space:pre-wrap">ยังไม่ได้ส่ง</p>
+    </div>
+  </main>
+
+  <script type="module" src="js/ai-test.js"></script>
+</body>
+</html>

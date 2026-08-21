@@ -71,6 +71,74 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
+// ═══ 🤖 ผู้ช่วยระดับ 1 — ปุ่มให้ AI ช่วยจัดหมวดหมู่ (สัปดาห์ที่ 8) ═══
+// เส้นทาง: ผู้ใช้กด → ส่งรายละเอียด + รายชื่อหมวดที่มีจริง → ตรวจคำตอบ → เติมพร้อมป้าย
+const aiBtn = document.getElementById("ai-category-btn");
+const aiStatus = document.getElementById("ai-status");
+const aiLabel = document.getElementById("ai-label");
+
+aiBtn.addEventListener("click", async () => {
+  const detail = document.getElementById("detail").value.trim();
+  const title = document.getElementById("title").value.trim();
+  if (!detail && !title) {
+    return showError("กรุณากรอกหัวข้อหรือรายละเอียดก่อน แล้ว AI จะเดาหมวดหมู่จากข้อความนั้น");
+  }
+  noticeArea.innerHTML = "";
+  aiLabel.classList.add("hidden");
+
+  // รายชื่อหมวดหมู่ที่มีอยู่จริง — ต้องส่งไปด้วย ไม่งั้น AI จะแต่งหมวดใหม่เอง
+  const categoryNames = [...categorySelect.options]
+    .filter((o) => o.value)
+    .map((o) => o.textContent);
+  if (categoryNames.length === 0) {
+    return showError("ยังไม่มีหมวดหมู่ในระบบ — เพิ่มหมวดหมู่ก่อนที่หน้า categories.html");
+  }
+
+  aiBtn.disabled = true;                       // กันกดซ้ำระหว่างรอ
+  aiBtn.textContent = "🤖 กำลังให้ AI ช่วยดู...";
+  aiStatus.textContent = "";
+
+  try {
+    const { callAI } = await import("./ai.js");
+    const answer = await callAI(
+      [
+        {
+          role: "user",
+          content:
+`ช่วยจัดหมวดหมู่ใบแจ้งซ่อมนี้
+
+หัวข้อ: ${title}
+รายละเอียด: ${detail}
+
+หมวดหมู่ที่เลือกได้มีเท่านี้: ${categoryNames.join(" / ")}
+
+กติกาการตอบ: ตอบเป็นชื่อหมวดหมู่ชื่อเดียวเท่านั้น ห้ามอธิบายเพิ่ม ห้ามตั้งหมวดใหม่
+ตัวอย่าง 1 — รายละเอียด "หลอดไฟกะพริบ" → ไฟฟ้า
+ตัวอย่าง 2 — รายละเอียด "น้ำหยดจากท่อใต้อ่าง" → ประปา`,
+        },
+      ],
+      { mockKey: "categorize" }
+    );
+
+    // ตรวจคำตอบก่อนใช้ — ต้องเป็นหมวดหมู่ที่มีอยู่จริงเท่านั้น
+    const matched = [...categorySelect.options].find(
+      (o) => o.value && o.textContent === answer
+    );
+    if (matched) {
+      categorySelect.value = matched.value;
+      aiLabel.classList.remove("hidden");      // ป้าย "ข้อเสนอจาก AI"
+    } else {
+      aiStatus.textContent = "AI ยังจัดหมวดหมู่ให้ไม่ได้ กรุณาเลือกเอง";
+      // ไม่เปลี่ยนค่าเดิม — คำตอบที่ไม่เข้าพวกห้ามไหลลงฐานข้อมูล
+    }
+  } catch (e) {
+    aiStatus.textContent = `${e.message} — เลือกหมวดหมู่เองแล้วบันทึกได้ตามปกติ`;
+  } finally {
+    aiBtn.disabled = false;
+    aiBtn.textContent = "🤖 ให้ AI ช่วยจัดหมวดหมู่";
+  }
+});
+
 async function main() {
   me = await requireLogin();
   try {

@@ -36,6 +36,13 @@
         <select id="category" name="category">
           <option value="">— เลือกหมวดหมู่ —</option>
         </select>
+        <div style="margin-top:0.4rem">
+          <button type="button" id="ai-category-btn" class="btn btn-small">🤖 ให้ AI ช่วยจัดหมวดหมู่</button>
+          <span id="ai-status" style="font-size:0.85rem;color:#6b7280"></span>
+        </div>
+        <p id="ai-label" class="notice notice-ai hidden" style="margin-top:0.4rem;margin-bottom:0">
+          🤖 ข้อเสนอจาก AI — โปรดตรวจสอบก่อนยืนยัน (แก้เองได้เสมอ)
+        </p>
       </div>
       <div class="field">
         <label for="location">สถานที่ *</label>

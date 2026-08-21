@@ -4,7 +4,7 @@ import { requireLogin } from "./guard.js";
 import { esc, statusBadge, nextStatus, fmtDate, markActiveNav } from "./ui.js";
 import {
   doc, getDoc, updateDoc, deleteDoc,
-  collection, getDocs, addDoc, query, orderBy, where, serverTimestamp,
+  collection, getDocs, addDoc, query, orderBy, where, limit, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 markActiveNav();
@@ -41,10 +41,17 @@ function renderTicket() {
   document.getElementById("t-assignee").textContent = ticket.assigneeName || "ยังไม่ได้มอบหมาย";
   document.getElementById("t-created").textContent = fmtDate(ticket.createdAt);
 
-  // ปุ่มเปลี่ยนสถานะ — เดินหน้าทีละขั้นตามลูกศรเท่านั้น
+  // สิทธิ์ตามบทบาท (สัปดาห์ที่ 8) — หน้าจอซ่อนปุ่มให้ แต่ยามตัวจริงคือ firestore.rules
+  const role = me.profile.role;
+  const isStaff = role === "technician" || role === "admin";
+  const isOwner = ticket.reporterId === me.user.uid;
+
+  // ปุ่มเปลี่ยนสถานะ — เฉพาะช่างซ่อม/ผู้ดูแล · เดินหน้าทีละขั้นตามลูกศรเท่านั้น
   const statusBtn = document.getElementById("status-btn");
   const next = nextStatus(ticket.status);
-  if (next) {
+  if (!isStaff) {
+    statusBtn.classList.add("hidden");
+  } else if (next) {
     statusBtn.textContent = `เปลี่ยนสถานะเป็น "${next}"`;
     statusBtn.disabled = false;
   } else {
@@ -52,11 +59,13 @@ function renderTicket() {
     statusBtn.disabled = true;
   }
 
-  // ปุ่มลบ — กดได้เฉพาะใบที่ยังเป็น "แจ้งใหม่"
+  // ปุ่มลบ — เจ้าของใบ (หรือผู้ดูแล) และเฉพาะใบที่ยังเป็น "แจ้งใหม่"
   const deleteBtn = document.getElementById("delete-btn");
-  deleteBtn.disabled = ticket.status !== "แจ้งใหม่";
-  document.getElementById("action-hint").textContent =
-    ticket.status === "แจ้งใหม่" ? "" : "ลบได้เฉพาะใบที่สถานะยังเป็น แจ้งใหม่";
+  const canDelete = (isOwner || role === "admin") && ticket.status === "แจ้งใหม่";
+  deleteBtn.disabled = !canDelete;
+  document.getElementById("action-hint").textContent = canDelete
+    ? ""
+    : "ลบได้เฉพาะเจ้าของใบ และเฉพาะใบที่สถานะยังเป็น แจ้งใหม่";
 }
 
 async function renderComments() {
@@ -78,7 +87,9 @@ async function renderComments() {
 }
 
 async function setupAssignArea() {
-  // รายชื่อช่างซ่อม สำหรับมอบหมายงาน
+  // มอบหมายช่าง — เห็นเฉพาะ admin (สัปดาห์ที่ 8 · rules บังคับซ้ำอีกชั้น)
+  if (me.profile.role !== "admin") return;
+
   const area = document.getElementById("assign-area");
   const select = document.getElementById("assignee-select");
   try {
@@ -162,6 +173,125 @@ document.getElementById("assign-btn").addEventListener("click", async () => {
   } catch (e) {
     showError(`มอบหมายไม่สำเร็จ: ${e.message}`);
   }
+});
+
+// ═══ 🤖 ผู้ช่วยระดับ 2 (agentic) — เสนอมอบหมายช่างพร้อมเหตุผล (สัปดาห์ที่ 8) ═══
+// ทำงานหลายขั้น: อ่านใบนี้ → อ่านประวัติงานที่ช่างแต่ละคนเคยปิด → เสนอชื่อพร้อมเหตุผล
+// → เขียน aiSuggestion + aiLog กลับลงใบ → "คน" เป็นผู้กดยืนยันมอบหมายเสมอ
+const aiSuggestBtn = document.getElementById("ai-suggest-btn");
+const aiSuggestStatus = document.getElementById("ai-suggest-status");
+const aiBox = document.getElementById("ai-suggestion-box");
+let aiSuggested = null; // { uid, name, reason }
+
+aiSuggestBtn.addEventListener("click", async () => {
+  aiSuggestBtn.disabled = true;                 // กันกดซ้ำระหว่างรอ
+  aiSuggestBtn.textContent = "🤖 กำลังอ่านข้อมูล...";
+  aiSuggestStatus.textContent = "";
+  aiBox.classList.add("hidden");
+  aiSuggested = null;
+
+  try {
+    // ขั้นที่ 1 — อ่านรายชื่อช่างที่มีอยู่จริง
+    const techSnap = await getDocs(query(collection(db, "users"), where("role", "==", "technician")));
+    const technicians = techSnap.docs.map((d) => ({ uid: d.id, name: d.data().name }));
+    if (technicians.length === 0) throw new Error("ยังไม่มีช่างซ่อมในระบบ — เพิ่ม role technician ให้ผู้ใช้ก่อน");
+
+    // ขั้นที่ 2 — อ่านประวัติงานที่เสร็จสิ้นแล้ว เพื่อดูว่าใครถนัดหมวดไหน
+    const doneSnap = await getDocs(
+      query(collection(db, "tickets"), where("status", "==", "เสร็จสิ้น"), limit(50))
+    );
+    const history = {};
+    for (const tech of technicians) history[tech.name] = {};
+    let ticketsRead = 0;
+    for (const d of doneSnap.docs) {
+      const t = d.data();
+      const tech = technicians.find((x) => x.uid === t.assigneeId);
+      if (!tech) continue;
+      history[tech.name][t.categoryName] = (history[tech.name][t.categoryName] || 0) + 1;
+      ticketsRead++;
+    }
+
+    // ขั้นที่ 3 — ส่งให้ AI: เฉพาะหมวด อาการ และจำนวนงาน — ห้ามส่งอีเมลหรือข้อมูลส่วนตัว
+    const historyText = technicians
+      .map((tech) => {
+        const items = Object.entries(history[tech.name])
+          .map(([cat, n]) => `${cat} ${n} ใบ`)
+          .join(" · ") || "ยังไม่มีงานที่ปิดแล้ว";
+        return `- ${tech.name}: ${items}`;
+      })
+      .join("\n");
+
+    aiSuggestBtn.textContent = "🤖 กำลังคิด...";
+    const { callAI } = await import("./ai.js");
+    const answer = await callAI(
+      [
+        {
+          role: "user",
+          content:
+`ช่วยเสนอว่าควรมอบหมายใบแจ้งซ่อมนี้ให้ช่างคนไหน
+
+ใบแจ้งซ่อม — หมวด: ${ticket.categoryName} · อาการ: ${ticket.detail}
+
+ประวัติงานที่ช่างแต่ละคนเคยปิด:
+${historyText}
+
+กติกาการตอบ: ตอบบรรทัดเดียวรูปแบบ ชื่อช่าง|เหตุผลสั้น ๆ
+เลือกได้เฉพาะชื่อในรายการข้างบนเท่านั้น ห้ามตั้งชื่อใหม่
+ตัวอย่าง: สมหญิง รักงาน|เคยปิดงานหมวดไฟฟ้ามาแล้ว 3 ใบ`,
+        },
+      ],
+      { mockKey: "assign" }
+    );
+
+    // ขั้นที่ 4 — ตรวจคำตอบ: ชื่อที่เสนอต้องเป็นช่างที่มีอยู่จริงเท่านั้น
+    const [name, reason] = answer.split("|").map((s) => (s || "").trim());
+    const matched = technicians.find((t) => t.name === name);
+    if (!matched) {
+      aiSuggestStatus.textContent = "AI เสนอชื่อที่ไม่อยู่ในรายการช่างจริง — ไม่ใช้ข้อเสนอนี้ เลือกเองได้เลย";
+      return;
+    }
+    aiSuggested = { uid: matched.uid, name: matched.name, reason: reason || "-" };
+
+    // ขั้นที่ 5 — เขียนข้อเสนอ + บันทึกการทำงานกลับลงใบ (ผู้ช่วยหลายขั้นต้องทิ้งบันทึกไว้เสมอ)
+    const logLine = `อ่านใบเก่า ${ticketsRead} ใบ · เสนอ ${matched.name} · ${new Date().toLocaleString("th-TH")}`;
+    await updateDoc(doc(db, "tickets", id), {
+      aiSuggestion: `${matched.name} — ${aiSuggested.reason}`,
+      aiLog: logLine,
+    });
+
+    document.getElementById("ai-suggestion-text").textContent =
+      `เสนอมอบหมาย: ${matched.name} — ${aiSuggested.reason} (${logLine})`;
+    aiBox.classList.remove("hidden");
+  } catch (e) {
+    aiSuggestStatus.textContent = `${e.message} — มอบหมายเองได้ตามปกติ`;
+  } finally {
+    aiSuggestBtn.disabled = false;
+    aiSuggestBtn.textContent = "🤖 ให้ AI เสนอช่าง";
+  }
+});
+
+// คนเป็นผู้ตัดสินเสมอ — AI เสนอได้อย่างเดียว
+document.getElementById("ai-confirm-btn").addEventListener("click", async () => {
+  if (!aiSuggested) return;
+  try {
+    await updateDoc(doc(db, "tickets", id), {
+      assigneeId: aiSuggested.uid,
+      assigneeName: aiSuggested.name,   // จดชื่อซ้ำ
+    });
+    ticket.assigneeId = aiSuggested.uid;
+    ticket.assigneeName = aiSuggested.name;
+    aiBox.classList.add("hidden");
+    noticeArea.innerHTML = `<div class="notice notice-ok">มอบหมายให้ ${esc(aiSuggested.name)} ตามข้อเสนอของ AI แล้ว</div>`;
+    renderTicket();
+  } catch (e) {
+    showError(`มอบหมายไม่สำเร็จ: ${e.message}`);
+  }
+});
+
+document.getElementById("ai-dismiss-btn").addEventListener("click", () => {
+  aiBox.classList.add("hidden");
+  aiSuggested = null;
+  aiSuggestStatus.textContent = "ไม่ใช้ข้อเสนอของ AI — เลือกช่างเองจากรายการได้เลย";
 });
 
 async function main() {

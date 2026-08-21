@@ -9,6 +9,9 @@ node_modules/
 
 
 # ── 🔑 ของลับ ห้ามหลุดเด็ดขาด ──
+# API key ของ OpenRouter (สัปดาห์ที่ 8) — คัดลอกจาก js/config.example.js
+config.js
+js/config.js
 secrets.js
 
 # ค่าตั้งค่า Firebase ของเครื่องผู้สอน (คัดลอกจาก js/firebase-config.example.js)

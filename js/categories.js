@@ -16,7 +16,7 @@ function showError(message) {
   noticeArea.innerHTML = `<div class="notice notice-error">${esc(message)}</div>`;
 }
 
-async function render() {
+async function render(canEdit = true) {
   const snap = await getDocs(collection(db, "categories"));
   const categories = snap.docs.map((d) => ({ id: d.id, name: d.data().name }));
 
@@ -26,9 +26,9 @@ async function render() {
       (c) => `
       <tr data-id="${esc(c.id)}" data-name="${esc(c.name)}">
         <td>${esc(c.name)}</td>
-        <td>
+        <td>${canEdit ? `
           <button class="btn btn-small edit-btn">แก้ไข</button>
-          <button class="btn btn-small btn-danger delete-btn">ลบ</button>
+          <button class="btn btn-small btn-danger delete-btn">ลบ</button>` : ""}
         </td>
       </tr>`
     )
@@ -81,9 +81,17 @@ document.getElementById("add-form").addEventListener("submit", async (e) => {
 });
 
 async function main() {
-  await requireLogin();
+  const me = await requireLogin();
+
+  // หน้านี้แก้ไขได้เฉพาะผู้ดูแลระบบ (สัปดาห์ที่ 8) — rules บังคับซ้ำอีกชั้นฝั่งฐานข้อมูล
+  if (me.profile.role !== "admin") {
+    document.getElementById("add-form").classList.add("hidden");
+    noticeArea.innerHTML =
+      `<div class="notice notice-warn">หน้านี้แก้ไขได้เฉพาะผู้ดูแลระบบ — คุณเปิดดูรายการได้อย่างเดียว</div>`;
+  }
+
   try {
-    await render();
+    await render(me.profile.role === "admin");
   } catch (e) {
     showError(`อ่านข้อมูลไม่สำเร็จ: ${e.message}`);
   }

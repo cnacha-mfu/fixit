@@ -43,12 +43,21 @@
       <p id="action-hint" style="font-size:0.85rem;color:#6b7280;margin-top:0.4rem"></p>
 
       <div id="assign-area" class="hidden" style="margin-top:1rem;border-top:1px solid #e5e7eb;padding-top:0.8rem">
-        <h2 style="margin-top:0">🔧 มอบหมายช่าง</h2>
+        <h2 style="margin-top:0">🔧 มอบหมายช่าง (เฉพาะผู้ดูแลระบบ)</h2>
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
           <select id="assignee-select" style="padding:0.45rem 0.7rem;border:1px solid #d1d5db;border-radius:8px;font-family:inherit">
             <option value="">— เลือกช่างซ่อม —</option>
           </select>
           <button id="assign-btn" class="btn btn-primary btn-small">มอบหมาย</button>
+          <button id="ai-suggest-btn" class="btn btn-small">🤖 ให้ AI เสนอช่าง</button>
+        </div>
+        <span id="ai-suggest-status" style="font-size:0.85rem;color:#6b7280"></span>
+
+        <div id="ai-suggestion-box" class="notice notice-ai hidden" style="margin-top:0.8rem">
+          <div style="font-weight:bold">🤖 ข้อเสนอจาก AI — โปรดตรวจสอบก่อนยืนยัน</div>
+          <div id="ai-suggestion-text" style="margin:0.4rem 0"></div>
+          <button id="ai-confirm-btn" class="btn btn-primary btn-small">ยืนยันมอบหมาย</button>
+          <button id="ai-dismiss-btn" class="btn btn-small">ไม่ใช้ข้อเสนอนี้</button>
         </div>
       </div>
     </div>
