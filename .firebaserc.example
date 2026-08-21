@@ -1,0 +1,6 @@
+{
+  "//": "คัดลอกไฟล์นี้เป็นชื่อ .firebaserc แล้วแก้ your-project-id เป็น id โปรเจกต์ Firebase ของคุณ (ไฟล์ .firebaserc ถูก .gitignore กันไว้)",
+  "projects": {
+    "default": "your-project-id"
+  }
+}

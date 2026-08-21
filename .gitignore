@@ -22,6 +22,9 @@ js/firebase-config.js
 *firebase-adminsdk*.json
 .firebaserc.local
 
+# ชี้โปรเจกต์ Firebase ของเครื่องผู้สอน (คัดลอกจาก .firebaserc.example)
+.firebaserc
+
 
 # ── ไฟล์ที่ Firebase สร้างเอง ──
 .firebase/
