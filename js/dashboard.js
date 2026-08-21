@@ -1,8 +1,14 @@
-// ═══ หน้าแดชบอร์ดสรุป — prototype: นับจากข้อมูลปลอมใน js/data.js ═══
-import { getTickets } from "./data.js";
+// ═══ หน้าแดชบอร์ดสรุป — นับจากข้อมูลจริงใน Firestore (ห้ามใส่ตัวเลขค้างไว้ในโค้ด) ═══
+import { db } from "./firebase.js";
+import { requireLogin } from "./guard.js";
 import { esc, statusBadge, fmtDate, markActiveNav, STATUS_FLOW } from "./ui.js";
+import {
+  collection, query, orderBy, limit, getDocs,
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 markActiveNav();
+
+const noticeArea = document.getElementById("notice-area");
 
 function render(tickets) {
   // กล่องตัวเลข 4 กล่อง — กดแล้วไปหน้ารายการพร้อมกรองสถานะนั้น
@@ -17,11 +23,9 @@ function render(tickets) {
     })
     .join("");
 
-  // 5 รายการล่าสุด
-  const latest = [...tickets]
-    .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
-    .slice(0, 5);
-  document.getElementById("latest-rows").innerHTML = latest
+  // 5 รายการล่าสุด (ข้อมูลเรียงใหม่ไปเก่าอยู่แล้วจาก query)
+  document.getElementById("latest-rows").innerHTML = tickets
+    .slice(0, 5)
     .map(
       (t) => `
       <tr class="clickable" data-id="${esc(t.id)}">
@@ -39,4 +43,17 @@ function render(tickets) {
   });
 }
 
-render(getTickets());
+async function main() {
+  await requireLogin();
+  try {
+    // จำกัด 100 ใบล่าสุดแทนการแบ่งหน้า (pagination เป็นเนื้อหา Module 3)
+    const q = query(collection(db, "tickets"), orderBy("createdAt", "desc"), limit(100));
+    const snap = await getDocs(q);
+    render(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+  } catch (e) {
+    noticeArea.innerHTML =
+      `<div class="notice notice-error">อ่านข้อมูลไม่สำเร็จ: ${esc(e.message)}</div>`;
+  }
+}
+
+main();

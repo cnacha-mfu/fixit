@@ -1,9 +1,10 @@
-// ═══ หน้ารายการใบแจ้งซ่อม ═══
-// สัปดาห์ที่ 6: อ่านจาก Firestore จริง (ตัว R ตัวเดียว)
-// ถ้ายังไม่มีไฟล์ js/firebase-config.js → fallback ไปข้อมูลปลอมพร้อมแถบเตือน
-
+// ═══ หน้ารายการใบแจ้งซ่อม — อ่านจาก Firestore จริง ═══
 import { db } from "./firebase.js";
+import { requireLogin } from "./guard.js";
 import { esc, statusBadge, fmtDate, markActiveNav } from "./ui.js";
+import {
+  collection, query, orderBy, limit, getDocs,
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 markActiveNav();
 
@@ -50,33 +51,21 @@ function render(tickets) {
   });
 }
 
-async function loadFromFirestore() {
-  const { collection, query, orderBy, limit, getDocs } = await import(
-    "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
-  );
-  // เรียงใหม่ไปเก่า · จำกัดจำนวนแทนการแบ่งหน้า (pagination เป็นเนื้อหา Module 3)
-  const q = query(collection(db, "tickets"), orderBy("createdAt", "desc"), limit(50));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-}
-
-async function loadFromFakeData() {
-  // ยังไม่ได้ต่อ Firebase — ใช้ข้อมูลปลอมจาก prototype ไปก่อน
-  noticeArea.innerHTML =
-    `<div class="notice notice-warn">⚠️ ยังไม่ได้ต่อ Firebase — กำลังแสดงข้อมูลปลอมจาก js/data.js
-     (วิธีต่อดูใน SETUP.md)</div>`;
-  const { getTickets } = await import("./data.js");
-  return getTickets().sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-}
-
 async function main() {
+  // รอสถานะล็อกอินพร้อมก่อน แล้วค่อยอ่านข้อมูล — กัน permission denied ทั้งที่ล็อกอินอยู่
+  await requireLogin();
+
+  rowsEl.innerHTML = `<tr><td colspan="5">กำลังโหลด...</td></tr>`;
   try {
-    const tickets = db ? await loadFromFirestore() : await loadFromFakeData();
-    render(tickets);
+    // เรียงใหม่ไปเก่า · จำกัดจำนวนแทนการแบ่งหน้า (pagination เป็นเนื้อหา Module 3)
+    const q = query(collection(db, "tickets"), orderBy("createdAt", "desc"), limit(50));
+    const snap = await getDocs(q);
+    render(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
   } catch (e) {
+    rowsEl.innerHTML = "";
     noticeArea.innerHTML =
       `<div class="notice notice-error">อ่านข้อมูลไม่สำเร็จ: ${esc(e.message)}<br>
-       ลองเปิด Firebase Console ดูว่าข้อมูลอยู่ในตู้ไหม — ถ้าอยู่ แปลว่าพังตอนอ่าน (เช่น โหมดทดสอบหมดอายุ)</div>`;
+       ถ้าขึ้น permission-denied ให้ตรวจว่าล็อกอินแล้ว และกฎใน Firebase ถูก deploy แล้ว</div>`;
   }
 }
 

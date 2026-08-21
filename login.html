@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>เข้าสู่ระบบ — FixIt</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="login.html">🔧 FixIt</a>
+  </header>
+
+  <main style="max-width:460px">
+    <h1>🔑 เข้าสู่ระบบ FixIt</h1>
+    <div id="notice-area"></div>
+
+    <div class="card">
+      <div class="field">
+        <label for="email">อีเมล</label>
+        <input id="email" type="email" placeholder="somchai@example.com">
+      </div>
+      <div class="field">
+        <label for="password">รหัสผ่าน (อย่างน้อย 6 ตัว)</label>
+        <input id="password" type="password">
+      </div>
+      <div class="field" id="name-field" style="display:none">
+        <label for="display-name">ชื่อ-นามสกุล (แสดงบนหน้าจอ)</label>
+        <input id="display-name" type="text" placeholder="เช่น สมชาย ใจดี">
+      </div>
+
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+        <button id="login-btn" class="btn btn-primary">เข้าสู่ระบบ</button>
+        <button id="signup-btn" class="btn">สมัครสมาชิกใหม่</button>
+      </div>
+      <p style="font-size:0.85rem;color:#6b7280;margin-top:0.6rem">
+        สมัครครั้งแรก: กรอกอีเมลกับรหัสผ่าน แล้วกด "สมัครสมาชิกใหม่" ระบบจะขอชื่อเพิ่มหนึ่งช่อง
+      </p>
+    </div>
+  </main>
+
+  <script type="module" src="js/login.js"></script>
+</body>
+</html>

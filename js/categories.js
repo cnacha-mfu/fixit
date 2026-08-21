@@ -1,6 +1,10 @@
-// ═══ หน้าจัดการหมวดหมู่ — prototype: ทำงานกับข้อมูลปลอมในตัวแปร in-memory (รีเฟรชแล้วกลับเป็นชุดเดิม) ═══
-import { getCategories, addCategory, updateCategory, deleteCategory } from "./data.js";
+// ═══ หน้าจัดการหมวดหมู่ — อ่าน/เขียน Firestore จริง ═══
+import { db } from "./firebase.js";
+import { requireLogin } from "./guard.js";
 import { esc, markActiveNav } from "./ui.js";
+import {
+  collection, getDocs, addDoc, updateDoc, deleteDoc, doc,
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 markActiveNav();
 
@@ -12,13 +16,15 @@ function showError(message) {
   noticeArea.innerHTML = `<div class="notice notice-error">${esc(message)}</div>`;
 }
 
-function render() {
-  const categories = getCategories();
+async function render() {
+  const snap = await getDocs(collection(db, "categories"));
+  const categories = snap.docs.map((d) => ({ id: d.id, name: d.data().name }));
+
   emptyEl.classList.toggle("hidden", categories.length > 0);
   rowsEl.innerHTML = categories
     .map(
       (c) => `
-      <tr data-id="${esc(c.id)}">
+      <tr data-id="${esc(c.id)}" data-name="${esc(c.name)}">
         <td>${esc(c.name)}</td>
         <td>
           <button class="btn btn-small edit-btn">แก้ไข</button>
@@ -29,28 +35,34 @@ function render() {
     .join("");
 
   rowsEl.querySelectorAll(".edit-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const tr = btn.closest("tr");
-      const current = getCategories().find((c) => c.id === tr.dataset.id);
-      const name = prompt("แก้ชื่อหมวดหมู่เป็น:", current ? current.name : "");
-      if (name && name.trim()) {
-        updateCategory(tr.dataset.id, name.trim());
-        render();
+      const name = prompt("แก้ชื่อหมวดหมู่เป็น:", tr.dataset.name);
+      if (!name || !name.trim()) return;
+      try {
+        await updateDoc(doc(db, "categories", tr.dataset.id), { name: name.trim() });
+        await render();
+      } catch (e) {
+        showError(`แก้ไขไม่สำเร็จ: ${e.message}`);
       }
     });
   });
 
   rowsEl.querySelectorAll(".delete-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const ok = confirm("ยืนยันการลบหมวดหมู่นี้?");
+    btn.addEventListener("click", async () => {
+      const ok = confirm("ยืนยันการลบหมวดหมู่นี้? ใบแจ้งซ่อมเก่าที่ใช้หมวดนี้จะยังแสดงชื่อเดิม");
       if (!ok) return;
-      deleteCategory(btn.closest("tr").dataset.id);
-      render();
+      try {
+        await deleteDoc(doc(db, "categories", btn.closest("tr").dataset.id));
+        await render();
+      } catch (e) {
+        showError(`ลบไม่สำเร็จ: ${e.message}`);
+      }
     });
   });
 }
 
-document.getElementById("add-form").addEventListener("submit", (e) => {
+document.getElementById("add-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const input = document.getElementById("new-name");
   const name = input.value.trim();
@@ -59,9 +71,22 @@ document.getElementById("add-form").addEventListener("submit", (e) => {
     return;
   }
   noticeArea.innerHTML = "";
-  addCategory(name);
-  input.value = "";
-  render();
+  try {
+    await addDoc(collection(db, "categories"), { name });
+    input.value = "";
+    await render();
+  } catch (err) {
+    showError(`เพิ่มไม่สำเร็จ: ${err.message} — หน้านี้สำหรับผู้ดูแลระบบ ตรวจว่า role ของคุณเป็น admin`);
+  }
 });
 
-render();
+async function main() {
+  await requireLogin();
+  try {
+    await render();
+  } catch (e) {
+    showError(`อ่านข้อมูลไม่สำเร็จ: ${e.message}`);
+  }
+}
+
+main();

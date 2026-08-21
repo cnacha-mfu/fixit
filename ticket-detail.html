@@ -41,6 +41,16 @@
         <button id="delete-btn" class="btn btn-danger">ลบใบแจ้งซ่อม</button>
       </div>
       <p id="action-hint" style="font-size:0.85rem;color:#6b7280;margin-top:0.4rem"></p>
+
+      <div id="assign-area" class="hidden" style="margin-top:1rem;border-top:1px solid #e5e7eb;padding-top:0.8rem">
+        <h2 style="margin-top:0">🔧 มอบหมายช่าง</h2>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
+          <select id="assignee-select" style="padding:0.45rem 0.7rem;border:1px solid #d1d5db;border-radius:8px;font-family:inherit">
+            <option value="">— เลือกช่างซ่อม —</option>
+          </select>
+          <button id="assign-btn" class="btn btn-primary btn-small">มอบหมาย</button>
+        </div>
+      </div>
     </div>
 
     <div id="comments-card" class="card hidden">
