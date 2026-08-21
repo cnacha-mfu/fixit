@@ -1,19 +1,128 @@
-// ═══ Security Rules ขั้นต่ำ — "กุญแจประตูหน้าบ้าน" (สัปดาห์ที่ 7) ═══
+// ═══ Security Rules รายห้อง — ครบเช็กลิสต์ 5 ข้อ (สัปดาห์ที่ 8) ═══
 //
-// กฎมีข้อเดียว: ต้องล็อกอินก่อน ถึงอ่านหรือเขียนได้ ทุกโฟลเดอร์
+// เช็กลิสต์ 5 ข้อ:
+//   ✅ ข้อ 1  ไม่ล็อกอิน อ่าน/เขียนอะไรไม่ได้เลยทุกโฟลเดอร์
+//   ✅ ข้อ 2  สร้างใบใหม่ได้เฉพาะในชื่อตัวเอง (reporterId = uid) · แก้ไฟล์ users ได้เฉพาะของตัวเอง
+//   ✅ ข้อ 3  อ่านใบแจ้งซ่อมได้เฉพาะใบของตัวเอง ยกเว้น technician / admin อ่านได้ทุกใบ
+//   ✅ ข้อ 4  เปลี่ยน status ได้เฉพาะ technician / admin · มอบหมายช่างและแก้ categories ได้เฉพาะ admin
+//   ✅ ข้อ 5  โฟลเดอร์ย่อย comments มีกฎของตัวเอง — กฎของใบแม่ไม่ครอบลูกอัตโนมัติ
 //
-// ⚠️ ยังไม่ปลอดภัยจริง — ใครสมัครบัญชีใหม่ก็อ่านข้อมูลทุกคนได้
-//    กฎรายห้องครบชุดมาในสัปดาห์ที่ 8 · ระหว่างนี้ห้ามใส่ข้อมูลจริงของใคร
-//
+// ทดสอบด้วยการสวมรอยใน Rules Playground เสมอ — อย่าเชื่อหน้าจอตัวเอง
 // deploy ด้วย: firebase deploy --only firestore:rules
 
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ───────── ตัวช่วยที่ใช้ซ้ำ ─────────
+
+    // ล็อกอินอยู่หรือเปล่า
+    function loggedIn() {
+      return request.auth != null;
+    }
+
+    // คนที่ล็อกอินอยู่ คือคนคนนี้ใช่ไหม
+    function isMe(userId) {
+      return loggedIn() && request.auth.uid == userId;
+    }
+
+    // อ่าน role จากไฟล์ของคนที่ล็อกอินในโฟลเดอร์ users
+    function myRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    // ช่างซ่อมหรือผู้ดูแลระบบ
+    function isStaff() {
+      return loggedIn() && (myRole() == 'technician' || myRole() == 'admin');
+    }
+
+    function isAdmin() {
+      return loggedIn() && myRole() == 'admin';
+    }
+
+    // การแก้ไขครั้งนี้ แตะเฉพาะช่องในรายการนี้เท่านั้นใช่ไหม
+    function onlyChanges(keys) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+    }
+
+
+    // ───────── 📁 users — ข้อมูลผู้ใช้ ─────────
+    match /users/{userId} {
+      // ✅ ข้อ 1: ต้องล็อกอินก่อน (ทุกคนต้องอ่านชื่อกันได้ เพราะจอแสดงชื่อช่าง)
+      allow read: if loggedIn();
+
+      // ✅ ข้อ 2: สร้าง/แก้ได้เฉพาะไฟล์ของตัวเอง
+      //    ตอนสมัคร role ต้องเป็น reporter เท่านั้น — เลื่อนขั้นตัวเองไม่ได้
+      allow create: if isMe(userId) && request.resource.data.role == 'reporter';
+      //    แก้ข้อมูลตัวเองได้ แต่เปลี่ยน role ตัวเองไม่ได้ (เปลี่ยน role ทำใน Console)
+      allow update: if isMe(userId) && request.resource.data.role == resource.data.role;
+
+      // ห้ามลบบัญชีผ่านหน้าเว็บ
+      allow delete: if false;
+    }
+
+
+    // ───────── 📁 categories — หมวดหมู่ปัญหา ─────────
+    match /categories/{categoryId} {
+      allow read: if loggedIn();
+
+      // ✅ ข้อ 4: เพิ่ม/แก้/ลบหมวดหมู่ได้เฉพาะ admin
+      allow write: if isAdmin();
+    }
+
+
+    // ───────── 📁 tickets — ใบแจ้งซ่อม ─────────
+    match /tickets/{ticketId} {
+
+      // ✅ ข้อ 3: อ่านได้เฉพาะใบของตัวเอง ยกเว้น technician / admin อ่านได้ทุกใบ
+      allow read: if isStaff()
+                  || (loggedIn() && resource.data.reporterId == request.auth.uid);
+
+      // ✅ ข้อ 2: สร้างใบใหม่ได้เฉพาะในชื่อตัวเอง และต้องเริ่มที่สถานะ "แจ้งใหม่"
+      allow create: if loggedIn()
+                    && request.resource.data.reporterId == request.auth.uid
+                    && request.resource.data.status == 'แจ้งใหม่';
+
+      // ✅ ข้อ 4: technician เปลี่ยนได้เฉพาะช่อง status
+      //           admin แก้ได้ทุกช่อง (มอบหมายช่าง · aiSuggestion · aiLog)
+      allow update: if isAdmin()
+                    || (isStaff() && onlyChanges(['status']));
+
+      // ลบได้เฉพาะเจ้าของใบ (หรือ admin) และเฉพาะใบที่ยังเป็น "แจ้งใหม่"
+      allow delete: if (isAdmin()
+                        || (loggedIn() && resource.data.reporterId == request.auth.uid))
+                    && resource.data.status == 'แจ้งใหม่';
+
+
+      // ───── ✅ ข้อ 5: โฟลเดอร์ย่อย comments — จุดที่คนลืมมากที่สุด ─────
+      // กฎของ tickets ข้างบน "ไม่ครอบ" โฟลเดอร์ย่อยนี้อัตโนมัติ
+      // ถ้าไม่เขียนบล็อกนี้ ความคืบหน้าของงานจะโดนบล็อกท้ายไฟล์ปฏิเสธหมด (หรือรั่วถ้าเปิดกว้าง)
+      match /comments/{commentId} {
+
+        // อ่านได้เฉพาะคนที่มีสิทธิ์อ่านใบแม่
+        allow read: if isStaff()
+                    || (loggedIn()
+                        && get(/databases/$(database)/documents/tickets/$(ticketId))
+                             .data.reporterId == request.auth.uid);
+
+        // เขียนได้เฉพาะคนที่มีสิทธิ์อ่านใบแม่ และต้องเขียนในชื่อตัวเอง
+        allow create: if (isStaff()
+                          || (loggedIn()
+                              && get(/databases/$(database)/documents/tickets/$(ticketId))
+                                   .data.reporterId == request.auth.uid))
+                      && request.resource.data.authorId == request.auth.uid;
+
+        // ความคืบหน้าเป็นบันทึกเหตุการณ์ — ห้ามแก้ ห้ามลบ
+        allow update, delete: if false;
+      }
+    }
+
+
+    // ───────── กันทุกอย่างที่เหลือ ─────────
+    // โฟลเดอร์ไหนไม่มีกฎ จะโดนบรรทัดนี้ปฏิเสธ — ดีกว่าเปิดโล่งโดยไม่รู้ตัว
     match /{document=**} {
-      // request.auth != null = ผู้ใช้ล็อกอินอยู่จริง
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
     }
   }
 }
