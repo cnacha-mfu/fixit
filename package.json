@@ -4,6 +4,10 @@
   "type": "module",
   "description": "FixIt — ระบบแจ้งซ่อมออนไลน์ (ระบบสาธิตของผู้สอน ADT-RAISE Batch 2 · Module 2)",
   "scripts": {
-    "dev": "npx -y serve -l 3000 ."
+    "dev": "npx -y serve -l 3000 .",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.45.0"
   }
 }

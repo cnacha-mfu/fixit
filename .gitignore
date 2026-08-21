@@ -45,7 +45,9 @@ desktop.ini
 .idea/
 
 
-# ── ผลการทดสอบ (สัปดาห์ที่ 9) ──
+# ── การทดสอบ (สัปดาห์ที่ 9) ──
+# มีรหัสผ่านบัญชีทดสอบ (คัดลอกจาก tests/test-config.example.js)
+tests/test-config.js
 test-results/
 playwright-report/
 blob-report/
